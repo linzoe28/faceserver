@@ -1,3 +1,5 @@
+package faceserver;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -41,12 +43,13 @@ public class FaceemotionService extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        response.addHeader("Access-Control-Allow-Origin", "*");
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
         String base64 = request.getParameter("base64");
         String id = request.getParameter("id");
         String emotion = request.getParameter("emotion");
+        String datatime = request.getParameter("datatime");
         String json = request.getParameter("json");
         Map map = new Gson().fromJson(json, Map.class);
         Map largestFaceBoundingBox = (Map) map.get("largestFaceBoundingBox");
@@ -88,7 +91,7 @@ public class FaceemotionService extends HttpServlet {
 
         try {
             Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/emotional_physiology", "root", "len1028");
-            PreparedStatement pstmt = conn.prepareStatement("insert into face_emotion(faceid, base64, id, emotion, face_x, face_y, face_width, face_height, eyeleftouter_x, eyeleftouter_y, eyeleftinner_x, eyeleftinner_y, eyerightouter_x, eyerightouter_y, eyerightinner_x, eyerightinner_y, mouthleft_x, mouthleft_y, mouthright_x, mouthright_y, eyebrowleftouter_x, eyebrowleftouter_y, eyebrowrightouter_x, eyebrowrightouter_y, eyebrowleftinner_x, eyebrowleftinner_y, eyebrowrightinner_x, eyebrowrightinner_y, noseleftalarouttip_x, noseleftalarouttip_y, noserightalarouttip_x, noserightalarouttip_y)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement pstmt = conn.prepareStatement("insert into face_emotion(faceid, base64, id, emotion, face_x, face_y, face_width, face_height, eyeleftouter_x, eyeleftouter_y, eyeleftinner_x, eyeleftinner_y, eyerightouter_x, eyerightouter_y, eyerightinner_x, eyerightinner_y, mouthleft_x, mouthleft_y, mouthright_x, mouthright_y, eyebrowleftouter_x, eyebrowleftouter_y, eyebrowrightouter_x, eyebrowrightouter_y, eyebrowleftinner_x, eyebrowleftinner_y, eyebrowrightinner_x, eyebrowrightinner_y, noseleftalarouttip_x, noseleftalarouttip_y, noserightalarouttip_x, noserightalarouttip_y,datatime)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             pstmt.setString(1, UUID.randomUUID().toString());
             pstmt.setString(2, base64);
             pstmt.setString(3, id);
@@ -121,6 +124,7 @@ public class FaceemotionService extends HttpServlet {
             pstmt.setDouble(30, NoseLeftAlarOutTip_y);
             pstmt.setDouble(31, NoseRightAlarOutTip_x);
             pstmt.setDouble(32, NoseRightAlarOutTip_y);
+            pstmt.setString(33, datatime);
             pstmt.executeUpdate();
             conn.close();
         } catch (SQLException ex) {
